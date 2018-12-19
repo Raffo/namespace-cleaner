@@ -12,7 +12,7 @@ LDFLAGS=-ldflags "-X main.version=$(VERSION)"
 VERSION?=$(shell git describe --tags --always --dirty)
 KUBERNETES_DEPLOYMENT_TAG?=v4
 
-all: test build
+all: deps test build
 
 $(PLATFORMS):
 	mkdir -p $(BUILD_DIR)
