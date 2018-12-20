@@ -12,13 +12,17 @@ LDFLAGS=-ldflags "-X main.version=$(VERSION)"
 VERSION?=$(shell git describe --tags --always --dirty)
 KUBERNETES_DEPLOYMENT_TAG?=v4
 
-all: deps test build
+all: actions deps test build
 
 $(PLATFORMS):
 	mkdir -p $(BUILD_DIR)
 	GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-$(GOOS)-$(GOARCH) -v .
 
 build: linux
+
+actions:
+	APP_DIR="/go/src/github.com/${GITHUB_REPOSITORY}/"
+	mkdir -p ${APP_DIR} && cp -r ./ ${APP_DIR} && cd ${APP_DIR}
 
 test:
 	$(GOTEST) -cover -v ./...
