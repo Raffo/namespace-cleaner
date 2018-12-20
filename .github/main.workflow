@@ -10,7 +10,4 @@ action "build binary" {
 action "docker://golang" {
   uses = "docker://golang"
   runs = "make"
-  env = {
-    APP_DIR = "\"/go/src/github.com/${GITHUB_REPOSITORY}/\""
-  }
 }
