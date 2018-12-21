@@ -1,6 +1,6 @@
 workflow "the one that does everything" {
   on = "push"
-  resolves = [ "docker push"]
+  resolves = ["docker push"]
 }
 
 action "build binary" {
@@ -19,6 +19,7 @@ action "docker build" {
 }
 
 action "docker login" {
+  needs = ["docker build"]
   uses = "actions/docker/login@master"
   secrets = ["DOCKER_USERNAME", "DOCKER_PASSWORD"]
 }
