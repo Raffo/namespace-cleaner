@@ -19,10 +19,8 @@ action "docker build" {
 }
 
 action "docker login" {
-  uses = "docker://docker:stable"
-  needs = ["docker build"]
-  runs = "bash login.sh"
-  secrets = ["DOCKER_PASS"]
+  uses = "actions/docker/login@master"
+  secrets = ["DOCKER_USERNAME", "DOCKER_PASSWORD"]
 }
 
 action "docker push" {
