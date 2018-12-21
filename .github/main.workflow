@@ -21,6 +21,7 @@ action "docker build" {
 action "docker login" {
   uses = "docker://docker:stable"
   needs = ["docker build"]
+  runs = "bash login.sh"
   args = "login -u x0rg -p ${DOCKER_PASS}"
   secrets = ["DOCKER_PASS"]
 }
