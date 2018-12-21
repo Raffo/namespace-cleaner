@@ -20,7 +20,7 @@ action "docker build" {
 
 action "docker login" {
   uses = "docker://docker:stable"
-  needs = ["docker tag"]
+  needs = ["docker build"]
   args = "login -u x0rg -p ${DOCKER_PASS}"
   secrets = ["DOCKER_PASS"]
 }
