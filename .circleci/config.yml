@@ -7,7 +7,7 @@ jobs:
     docker:
       - image: circleci/golang:1.9
       
-    working_directory: /go/src/github.com/Raffo/kube-nodes-downscaler
+    working_directory: /go/src/github.com/Raffo/namespace-cleaner
     steps:
       - checkout
       - setup_remote_docker
