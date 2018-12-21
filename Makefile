@@ -10,18 +10,14 @@ GOOS=$(word 1, $@)
 BINARY_NAME=namespace-cleaner
 LDFLAGS=-ldflags "-X main.version=$(VERSION)"
 VERSION?=$(shell git describe --tags --always --dirty)
-APP_DIR:=/go/src/github.com/${GITHUB_REPOSITORY}/
 
-all: actions deps test build
+all: deps test build
 
 $(PLATFORMS):
 	mkdir -p $(BUILD_DIR)
 	GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-$(GOOS)-$(GOARCH) -v .
 
 build: linux
-
-actions:
-	 mkdir -p $(APP_DIR) && cp -r ./ $(APP_DIR) && cd $(APP_DIR)
 
 test:
 	$(GOTEST) -cover -v ./...
