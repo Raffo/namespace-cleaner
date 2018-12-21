@@ -9,5 +9,5 @@ action "build binary" {
 
 action "docker://golang" {
   uses = "docker://golang"
-  runs = "make"
+  runs = "bash build.sh"
 }
