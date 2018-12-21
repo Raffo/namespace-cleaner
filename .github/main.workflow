@@ -20,7 +20,7 @@ action "docker build" {
 
 action "docker tag" {
   uses = "docker://docker:stable"
-  args = "tag x0rg/namespace-cleaner x0rg/namespace-cleaner:${GITHUB_SHA}"
+  args = "tag x0rg/namespace-cleaner x0rg/namespace-cleaner:$GITHUB_SHA"
   needs = ["docker build"]
 }
 
