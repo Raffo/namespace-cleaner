@@ -1,6 +1,6 @@
 workflow "the one that does everything" {
   on = "push"
-  resolves = ["docker tag", "docker push "]
+  resolves = [ "docker push"]
 }
 
 action "build binary" {
@@ -25,7 +25,7 @@ action "docker login" {
   secrets = ["DOCKER_PASS"]
 }
 
-action "docker push " {
+action "docker push" {
   uses = "docker://docker:stable"
   needs = ["docker login"]
   args = "push x0rg/namespace-cleaner"
