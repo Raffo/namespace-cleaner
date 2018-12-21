@@ -19,6 +19,12 @@ $(PLATFORMS):
 
 build: linux
 
+docker: linux
+	docker build -t x0rg/namespace-cleaner .
+
+push: docker
+	docker push x0rg/namespace-cleaner
+
 test:
 	$(GOTEST) -cover -v ./...
 

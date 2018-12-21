@@ -1,0 +1,75 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: namespace-cleaner
+subjects:
+- kind: ServiceAccount
+  name: namespace-cleaner
+  namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: namespace-cleaner
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: namespace-cleaner
+  labels:
+    app: namespace-cleaner
+rules:
+- apiGroups: [""]
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - watch
+  - list
+  - delete
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: namespace-cleaner
+  namespace: kube-system
+  labels:
+    app: namespace-cleaner
+
+---
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: namespace-cleaner
+  namespace: kube-system
+spec:
+  schedule: "0 20 * * 5" # every Friday at 20 -- nice to be after working hours
+  #schedule: "*/1 * * * *" # every minute -- for testing this code
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 10
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccount: namespace-cleaner
+          containers:
+          - name: namespace-cleaner
+            image: x0rg/namespace-cleaner
+            imagePullPolicy: Always
+            args:
+              - --yes
+            resources:
+              limits:
+                cpu: 100m
+                memory: 100Mi
+              requests:
+                cpu: 100m
+                memory: 100Mi

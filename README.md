@@ -11,5 +11,9 @@ This project wants to be a part of code that allows you to get rid of unwanted n
 
 ## How it works.
 
-This code is supposed to be run as a Job or ChronJob periodically. The code makes a single pass over the namespaces, exclude some namespaces that we should never delete (`default`, `kube-system` and `kube-public`) and delete all the other namespaces. The user can provide a flag `namespaces-to-retain` to specify other namespaces to **not** delete.
+This code is supposed to be run as a Job or CronJob periodically. The code makes a single pass over the namespaces, exclude some namespaces that we should never delete (`default`, `kube-system` and `kube-public`) and delete all the other namespaces. The user can provide a flag `namespaces-to-retain` to specify other namespaces to **not** delete.
 Please note that the default behaviour of this code is to **not** delete namespaces unless the flag `--yes` is specified. This is done to prevent mistaskes.
+
+## Deploy
+
+You can find a sample manifest in [this file](cronjob.yaml).

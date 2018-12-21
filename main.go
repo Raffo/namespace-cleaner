@@ -76,7 +76,7 @@ func do(client kubernetes.Interface, yes bool, neverDelete, doNotDelete []string
 
 func main() {
 	nsToRetain := kingpin.Flag("namespaces-to-retain", "List of namespaces to retain.").Strings()
-	kubeconfig := kingpin.Flag("kubeconfig", "path to kubeconfig file.").Default("~/.kube/config").String()
+	kubeconfig := kingpin.Flag("kubeconfig", "path to kubeconfig file.").String()
 	yes := kingpin.Flag("yes", "Set this flag if you want to delete the namespace otherwise it will only run in dry run mode.").Bool()
 	kingpin.Parse()
 
