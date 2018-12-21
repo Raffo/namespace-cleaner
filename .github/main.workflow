@@ -18,12 +18,6 @@ action "docker build" {
   needs = ["Makefiles are the best thing ever"]
 }
 
-action "docker tag" {
-  uses = "docker://docker:stable"
-  args = "tag x0rg/namespace-cleaner x0rg/namespace-cleaner:$GITHUB_SHA"
-  needs = ["docker build"]
-}
-
 action "docker login" {
   uses = "docker://docker:stable"
   needs = ["docker tag"]
@@ -34,5 +28,5 @@ action "docker login" {
 action "docker push " {
   uses = "docker://docker:stable"
   needs = ["docker login"]
-  args = "push x0rg/namespace-cleaner:${GITHUB_SHA}"
+  args = "push x0rg/namespace-cleaner"
 }
