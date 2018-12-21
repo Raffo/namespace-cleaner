@@ -1,6 +1,6 @@
 workflow "the one that does everything" {
   on = "push"
-  resolves = [ "docker push"]
+  resolves = ["docker push"]
 }
 
 action "build binary" {
@@ -22,7 +22,7 @@ action "docker login" {
   uses = "docker://docker:stable"
   needs = ["docker build"]
   runs = "bash login.sh"
-  secrets = ["DOCKER_PASS"]
+  secrets = ["DOCKER_USERNAME", "DOCKER_PASSWORD"]
 }
 
 action "docker push" {
