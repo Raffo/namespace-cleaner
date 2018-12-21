@@ -137,6 +137,7 @@ func TestDo(tt *testing.T) {
 	for _, test := range []struct {
 		name               string
 		existingNamespaces []v1.Namespace
+		yes                bool
 		neverDelete        []string
 		doNotDelete        []string
 		expected           []string
@@ -150,6 +151,7 @@ func TestDo(tt *testing.T) {
 					},
 				},
 			},
+			yes:         true,
 			neverDelete: []string{"kube-system"},
 			doNotDelete: []string{},
 			expected:    []string{},
@@ -163,6 +165,7 @@ func TestDo(tt *testing.T) {
 					},
 				},
 			},
+			yes:         true,
 			neverDelete: []string{"kube-system"},
 			doNotDelete: []string{"custom"},
 			expected:    []string{"custom"},
@@ -181,16 +184,36 @@ func TestDo(tt *testing.T) {
 					},
 				},
 			},
+			yes:         true,
 			neverDelete: []string{"kube-system"},
 			doNotDelete: []string{},
 			expected:    []string{"kube-system"},
+		},
+		{
+			name: "do not delete anything in dry run",
+			existingNamespaces: []v1.Namespace{
+				v1.Namespace{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "custom",
+					},
+				},
+				v1.Namespace{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "kube-system",
+					},
+				},
+			},
+			yes:         false,
+			neverDelete: []string{"kube-system"},
+			doNotDelete: []string{},
+			expected:    []string{"kube-system", "custom"},
 		},
 	} {
 		tt.Run(test.name, func(t *testing.T) {
 			for _, n := range test.existingNamespaces {
 				client.CoreV1().Namespaces().Create(&n)
 			}
-			do(client, test.neverDelete, test.doNotDelete)
+			do(client, test.yes, test.neverDelete, test.doNotDelete)
 			ns, _ := client.CoreV1().Namespaces().List(metav1.ListOptions{})
 			val := []string{}
 			for _, n := range ns.Items {

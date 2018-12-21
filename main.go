@@ -51,7 +51,7 @@ func combineArray(a, b []string) []string {
 	return append(a, b...)
 }
 
-func do(client kubernetes.Interface, neverDelete, doNotDelete []string) error {
+func do(client kubernetes.Interface, yes bool, neverDelete, doNotDelete []string) error {
 	toRetain := combineArray(neverDelete, doNotDelete)
 
 	ns, err := client.CoreV1().Namespaces().List(metav1.ListOptions{})
@@ -62,17 +62,22 @@ func do(client kubernetes.Interface, neverDelete, doNotDelete []string) error {
 
 	toDelete := namespacesToDelete(ns.Items, toRetain)
 
-	err = deleteNamespaces(client, toDelete)
-
-	if err != nil {
-		return fmt.Errorf("cannot delete namespaces %v", err)
+	if yes {
+		err = deleteNamespaces(client, toDelete)
+		if err != nil {
+			return fmt.Errorf("cannot delete namespaces %v", err)
+		}
+	} else {
+		logrus.Infof("Dry run mode, I would have deleted the following namespaces: %v", toDelete)
 	}
+
 	return nil
 }
 
 func main() {
-	namespaces := kingpin.Flag("namespaces", "List of namespaces").Strings()
-	kubeconfig := kingpin.Flag("kubeconfig", "path to kubeconfig file").Default("~/.kube/config").String()
+	nsToRetain := kingpin.Flag("namespaces-to-retain", "List of namespaces to retain.").Strings()
+	kubeconfig := kingpin.Flag("kubeconfig", "path to kubeconfig file.").Default("~/.kube/config").String()
+	yes := kingpin.Flag("yes", "Set this flag if you want to delete the namespace otherwise it will only run in dry run mode.").Bool()
 	kingpin.Parse()
 
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
@@ -85,5 +90,5 @@ func main() {
 		logrus.Fatalf("cannot build kubeclient: %v", err)
 	}
 
-	do(client, neverDelete, *namespaces)
+	do(client, *yes, neverDelete, *nsToRetain)
 }
