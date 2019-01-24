@@ -75,7 +75,7 @@ func do(client kubernetes.Interface, yes bool, neverDelete, doNotDelete []string
 	return nil
 }
 
-func controlLoop(client kubernetes.Interface, config *Config) {
+func controlLoop(client kubernetes.Interface, config *config) {
 	nextTimeToDelete := nextDeleteTime(time.Now(), config.d.Weekday().String(), config.d.Hour())
 	for {
 		select {
@@ -131,7 +131,7 @@ func nextDeleteTime(now time.Time, day string, hour int) time.Time {
 	return date.Add(time.Duration(hour-now.Hour()) * time.Hour)
 }
 
-type Config struct {
+type config struct {
 	oneShot     bool
 	c           chan int
 	yes         bool
@@ -150,12 +150,12 @@ func main() {
 	oneShot := kingpin.Flag("oneShot", "Run in one shot mode or control loop.").Bool()
 	kingpin.Parse()
 
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	clientConfig, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		logrus.Fatalf("cannot build config: %v", err)
 	}
 
-	client, err := kubernetes.NewForConfig(config)
+	client, err := kubernetes.NewForConfig(clientConfig)
 	if err != nil {
 		logrus.Fatalf("cannot build kubeclient: %v", err)
 	}
@@ -163,7 +163,7 @@ func main() {
 	d := nextDeleteTime(time.Now(), *day, *t) //TODO refactor
 
 	c := make(chan int)
-	controlLoop(client, &Config{
+	controlLoop(client, &config{
 		oneShot:     *oneShot,
 		c:           c,
 		yes:         *yes,

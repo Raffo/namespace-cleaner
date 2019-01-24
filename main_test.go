@@ -236,7 +236,7 @@ func TestControlLoop(t *testing.T) {
 		c <- 0
 	}()
 	client := fake.NewSimpleClientset()
-	config := Config{
+	config := config{
 		oneShot:     loop,
 		c:           c,
 		yes:         false,
@@ -256,7 +256,7 @@ func TestControlLoopWithDelete(t *testing.T) {
 		c <- 0
 	}()
 	client := fake.NewSimpleClientset()
-	config := Config{
+	config := config{
 		oneShot:     loop,
 		c:           c,
 		yes:         false,
@@ -276,7 +276,7 @@ func TestControlLoopLoop(t *testing.T) {
 		c <- 0
 	}()
 	client := fake.NewSimpleClientset()
-	config := Config{
+	config := config{
 		oneShot:     oneShot,
 		c:           c,
 		yes:         false,
