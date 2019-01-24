@@ -1,0 +1,80 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: namespace-cleaner
+subjects:
+- kind: ServiceAccount
+  name: namespace-cleaner
+  namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: namespace-cleaner
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: namespace-cleaner
+  labels:
+    app: namespace-cleaner
+rules:
+- apiGroups: [""]
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - watch
+  - list
+  - delete
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: namespace-cleaner
+  namespace: kube-system
+  labels:
+    app: namespace-cleaner
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: kube-system
+  name: namespace-cleaner
+  labels:
+    app: namespace-cleaner
+spec:
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+      labels:
+        app: namespace-cleaner
+    spec:
+      # run on each master node
+      serviceAccount: namespace-cleaner
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      - key: CriticalAddonsOnly
+        operator: Exists
+      containers:
+      - name: namespace-cleaner
+        imagePullPolicy: Always
+        image: x0rg/namespace-cleaner:latest
+        imagePullPolicy: Always
+        args:
+          - --namespaces-to-retain=docker
+          - --time=12 
+          - --day=Tuesday
+        resources:
+          limits:
+            memory: 20Mi
+            cpu: 10m
