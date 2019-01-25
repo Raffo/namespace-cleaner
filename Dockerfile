@@ -2,7 +2,7 @@ FROM golang as builder
 
 COPY . /go/src/github.com/Raffo/namespace-cleaner
 
-RUN cd /go/src/github.com/Raffo/namespace-cleaner && make push
+RUN cd /go/src/github.com/Raffo/namespace-cleaner && make build
 
 FROM alpine:3.7
 
