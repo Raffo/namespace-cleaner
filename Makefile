@@ -15,9 +15,9 @@ all: deps test build
 
 $(PLATFORMS):
 	mkdir -p $(BUILD_DIR)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-$(GOOS)-$(GOARCH) -v .
+	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS)  -o $(BUILD_DIR)/$(BINARY_NAME)-$(GOOS)-$(GOARCH) -v .
 
-build: linux
+build: deps linux
 
 docker: linux
 	docker build -t x0rg/namespace-cleaner .

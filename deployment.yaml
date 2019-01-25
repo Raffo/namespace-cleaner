@@ -49,6 +49,9 @@ metadata:
   labels:
     app: namespace-cleaner
 spec:
+  selector:
+    matchLabels:
+      app: namespace-cleaner
   template:
     metadata:
       annotations:
