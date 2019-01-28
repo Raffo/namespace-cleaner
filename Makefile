@@ -19,7 +19,7 @@ $(PLATFORMS):
 
 build: deps linux
 
-dockerbuild: build
+dockerbuild:
 	docker build -t x0rg/namespace-cleaner .
 
 push: dockerbuild
