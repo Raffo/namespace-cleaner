@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"k8s.io/client-go/kubernetes/fake"
 
@@ -221,6 +223,135 @@ func TestDo(tt *testing.T) {
 			}
 			if !reflect.DeepEqual(test.expected, val) {
 				t.Fatalf("expected %v, have %v", test.expected, val)
+			}
+		})
+	}
+}
+
+func TestControlLoop(t *testing.T) {
+	loop := true
+	c := make(chan int)
+	go func() {
+		time.Sleep(2 * time.Second)
+		c <- 0
+	}()
+	client := fake.NewSimpleClientset()
+	config := config{
+		oneShot:     loop,
+		c:           c,
+		yes:         false,
+		neverDelete: neverDelete,
+		nsToRetain:  []string{},
+		d:           nextDeleteTime(time.Date(2019, time.January, 20, 10, 0, 0, 0, time.UTC), "Friday", 20),
+		interval:    4 * time.Second,
+	}
+	controlLoop(client, &config)
+}
+
+func TestControlLoopWithDelete(t *testing.T) {
+	loop := true
+	c := make(chan int)
+	go func() {
+		time.Sleep(2 * time.Second)
+		c <- 0
+	}()
+	client := fake.NewSimpleClientset()
+	config := config{
+		oneShot:     loop,
+		c:           c,
+		yes:         false,
+		neverDelete: neverDelete,
+		nsToRetain:  []string{},
+		d:           nextDeleteTime(time.Date(2019, time.January, 25, 10, 0, 0, 0, time.UTC), "Friday", 20),
+		interval:    4 * time.Second,
+	}
+	controlLoop(client, &config)
+}
+
+func TestControlLoopLoop(t *testing.T) {
+	oneShot := true
+	c := make(chan int)
+	go func() {
+		time.Sleep(10 * time.Second)
+		c <- 0
+	}()
+	client := fake.NewSimpleClientset()
+	config := config{
+		oneShot:     oneShot,
+		c:           c,
+		yes:         false,
+		neverDelete: neverDelete, nsToRetain: []string{},
+		d:        nextDeleteTime(time.Now(), "Friday", 20),
+		interval: 4 * time.Second,
+	}
+	controlLoop(client, &config)
+}
+
+func TestNextDeleteTime(tt *testing.T) {
+	for _, test := range []struct {
+		name       string
+		now        time.Time
+		deleteDay  string
+		deleteHour int
+		expected   time.Time
+	}{
+		{
+			name:       "now is before the delete time",
+			now:        time.Date(2019, time.January, 20, 10, 0, 0, 0, time.UTC),
+			deleteDay:  "Friday",
+			deleteHour: 22,
+			expected:   time.Date(2019, time.January, 25, 22, 0, 0, 0, time.UTC),
+		},
+		{
+			name:       "now is after the delete day",
+			now:        time.Date(2019, time.January, 26, 10, 0, 0, 0, time.UTC),
+			deleteDay:  "Friday",
+			deleteHour: 22,
+			expected:   time.Date(2019, time.February, 1, 22, 0, 0, 0, time.UTC),
+		},
+		{
+			name:       "now is the same day as the delete day but earlier",
+			now:        time.Date(2019, time.January, 25, 10, 0, 0, 0, time.UTC),
+			deleteDay:  "Friday",
+			deleteHour: 22,
+			expected:   time.Date(2019, time.January, 25, 22, 0, 0, 0, time.UTC),
+		},
+		{
+			name:       "now is the same day as the delete day but later",
+			now:        time.Date(2019, time.January, 25, 23, 0, 0, 0, time.UTC),
+			deleteDay:  "Friday",
+			deleteHour: 22,
+			expected:   time.Date(2019, time.February, 1, 22, 0, 0, 0, time.UTC),
+		},
+		{
+			name:       "first delete of the new year",
+			now:        time.Date(2018, time.December, 30, 10, 0, 0, 0, time.UTC),
+			deleteDay:  "Friday",
+			deleteHour: 22,
+			expected:   time.Date(2019, time.January, 4, 22, 0, 0, 0, time.UTC),
+		},
+		{
+			name:       "end of February (no leap year)",
+			now:        time.Date(2019, time.February, 26, 10, 0, 0, 0, time.UTC),
+			deleteDay:  "Friday",
+			deleteHour: 22,
+			expected:   time.Date(2019, time.March, 1, 22, 0, 0, 0, time.UTC),
+		},
+		{
+			name:       "end of February (lep year)",
+			now:        time.Date(2020, time.February, 29, 10, 0, 0, 0, time.UTC),
+			deleteDay:  "Friday",
+			deleteHour: 22,
+			expected:   time.Date(2020, time.March, 6, 22, 0, 0, 0, time.UTC),
+		},
+	} {
+		tt.Run(test.name, func(t *testing.T) {
+			deleteTime := nextDeleteTime(test.now, test.deleteDay, test.deleteHour)
+			fmt.Println(test.now)
+			fmt.Println(deleteTime)
+			fmt.Println("------")
+			if !deleteTime.Equal(test.expected) {
+				t.Fatalf("expected time %v, have %v", test.expected, deleteTime)
 			}
 		})
 	}
