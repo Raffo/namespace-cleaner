@@ -114,7 +114,7 @@ func nextDeleteTime(now time.Time, day string, hour int) time.Time {
 	if currentWeekDay < int(daysOfWeek[day]) {
 		futureDay = int(daysOfWeek[day]) - currentWeekDay
 	} else if currentWeekDay == int(daysOfWeek[day]) {
-		if now.Hour() > hour {
+		if now.Hour() >= hour {
 			futureDay = 7 - currentWeekDay + int(daysOfWeek[day])
 		} else {
 			futureDay = 0

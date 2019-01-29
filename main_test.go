@@ -310,6 +310,13 @@ func TestNextDeleteTime(tt *testing.T) {
 			expected:   time.Date(2019, time.February, 1, 22, 0, 0, 0, time.UTC),
 		},
 		{
+			name:       "now is after the delete day for a few minutes",
+			now:        time.Date(2019, time.January, 25, 10, 0, 0, 0, time.UTC),
+			deleteDay:  "Friday",
+			deleteHour: 10,
+			expected:   time.Date(2019, time.February, 1, 10, 0, 0, 0, time.UTC),
+		},
+		{
 			name:       "now is the same day as the delete day but earlier",
 			now:        time.Date(2019, time.January, 25, 10, 0, 0, 0, time.UTC),
 			deleteDay:  "Friday",
