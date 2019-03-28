@@ -1,0 +1,7 @@
+pipeline:
+  - name: build project
+    do: docker
+    image: golang
+    command: go build .
+
+
