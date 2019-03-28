@@ -2,5 +2,5 @@ pipeline:
   - name: build project
     do: docker
     image: golang
-    command: cd /go/src/github.com/Raffo/namespace-cleaner && make build
+    command: make build
 
