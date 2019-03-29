@@ -1,6 +1,8 @@
 pipeline:
   - name: build project
+    workdir: /go/src/github.com/Raffo/namespace-cleaner
     do: docker
     image: golang
     command: make build
+    branch: test-new-ci
 
